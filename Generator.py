@@ -1,6 +1,6 @@
 from lxml import etree
 from selenium import webdriver
-from OnetEmail import OnetEmail
+from OnetEmailCreator import OnetEmailCreator
 
 
 def create_bulk(accounts_info):
@@ -22,7 +22,7 @@ def create_bulk(accounts_info):
 
 
 def create_mail_onet(driver, info):
-    email = OnetEmail(driver)
+    email = OnetEmailCreator(driver)
     email.fill_inputs(info)
 
     # email_node = etree.Element('email')
