@@ -4,7 +4,6 @@ from OnetEmailCreator import OnetEmailCreator
 
 
 def create_bulk(accounts_info):
-    # driver = webdriver.PhantomJS("C:\\Users\\kuite\\Desktop\\phantomjs-2.1.1-windows\\bin\\phantomjs.exe")
     driver = webdriver.Chrome("C:\\Users\\kuite\\Desktop\\chromedriver.exe")
 
     accounts = accounts_info.getElementsByTagName('information')
@@ -23,15 +22,17 @@ def create_bulk(accounts_info):
 
 def create_mail_onet(driver, info):
     email = OnetEmailCreator(driver)
-    email.fill_inputs(info)
+    if email.fill_inputs(info):
+        email_node = etree.Element('email')
+        address_element = etree.Element('address')
+        password_element = etree.Element('password')
 
-    # email_node = etree.Element('email')
-    # address_element = etree.Element('address')
-    # password_element = etree.Element('password')
-    #
-    # address_element.text = login
-    # password_element.text = password
-    #
-    # email_node.append(address_element)
-    # email_node.append(password_element)
-    return "udalo sie"
+        address_element.text = info.getElementsByTagName('login')[0].firstChild.data
+        password_element.text = info.getElementsByTagName('password')[0].firstChild.data
+
+        email_node.append(address_element)
+        email_node.append(password_element)
+
+        return email_node
+
+    return "error"

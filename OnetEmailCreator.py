@@ -1,9 +1,10 @@
-import selenium.webdriver as webdriver
 import selenium.webdriver.support.ui as ui
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException
 
 
 class OnetEmailCreator:
@@ -18,7 +19,7 @@ class OnetEmailCreator:
     }
     checkboxes_selectors = {
         # 'gender_woman': '#f_gender_K',
-        'gender_man': '#f_gender_M',
+        'gender_man': 'f_gender_M',
         'agreements': 'f_confirm',
         # 'captcha': 'recaptcha-anchor > div.recaptcha-checkbox-checkmark'
     }
@@ -54,13 +55,14 @@ class OnetEmailCreator:
         validated = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div.checkedFullEmail")))
 
         for text_field in self.inputs:
-            print(text_field + ': ' + self.inputs[text_field])
+            print(text_field + ': ' + self.inputs[text_field] + " value: " + info.getElementsByTagName(text_field)[0].firstChild.data)
             try:
                 value = info.getElementsByTagName(text_field)[0].firstChild.data
                 node = self.webdriver.find_element_by_id(self.inputs[text_field])
                 node.send_keys(value)
-            except ValueError:
-                print("error: {0}".format(ValueError))
+            except NoSuchElementException:
+                print("error: {0}".format(NoSuchElementException))
+                return False
 
         for dropdown in self.dropdowns_selectors:
             print(dropdown + ': ' + self.dropdowns_selectors[dropdown])
@@ -71,16 +73,20 @@ class OnetEmailCreator:
                     if option.text == value:
                         option.click()
                         break
-            except ValueError:
-                print("error: {0}".format(ValueError))
+            except NoSuchElementException:
+                print("error: {0}".format(NoSuchElementException))
+                return False
 
         for chkbx in self.checkboxes_selectors:
             print(chkbx + ': ' + self.checkboxes_selectors[chkbx])
             try:
                 node = self.webdriver.find_element_by_id(self.checkboxes_selectors[chkbx])
                 node.click()
-            except ValueError:
-                print("error: {0}".format(ValueError))
+            except NoSuchElementException:
+                print("error: {0}".format(NoSuchElementException))
+                return False
+
+        return True
 
     def solve_captcha(self):
         print("solved")
