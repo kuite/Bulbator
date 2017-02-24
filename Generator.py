@@ -22,15 +22,16 @@ def create_bulk(accounts_info):
 
 def create_mail_onet(driver, info):
     email = OnetEmailCreator(driver)
-    if email.fill_inputs(info):
+    email.fill_inputs(info)
+    if email.account_created:
         email_node = etree.Element('email')
-        address_element = etree.Element('address')
+        login_element = etree.Element('login')
         password_element = etree.Element('password')
 
-        address_element.text = info.getElementsByTagName('login')[0].firstChild.data
-        password_element.text = info.getElementsByTagName('password')[0].firstChild.data
+        login_element.text = email.login
+        password_element.text = email.password
 
-        email_node.append(address_element)
+        email_node.append(login_element)
         email_node.append(password_element)
 
         return email_node

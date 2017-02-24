@@ -5,7 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
-
+import time
 
 class OnetEmailCreator:
     login_selector = 'login_user'
@@ -18,8 +18,8 @@ class OnetEmailCreator:
         # 'alternative_contact': 'f_phonesEmails'
     }
     checkboxes_selectors = {
-        # 'gender_woman': '#f_gender_K',
-        'gender_man': 'f_gender_M',
+        'gender_woman': '#f_gender_K',
+        # 'gender_man': 'f_gender_M',
         'agreements': 'f_confirm',
         # 'captcha': 'recaptcha-anchor > div.recaptcha-checkbox-checkmark'
     }
@@ -37,6 +37,9 @@ class OnetEmailCreator:
     check_login_button = '//*[@id="registerForm"]/div/div[3]/div[1]/fieldset/div/div/ul/li/div/div[2]/span/input'
 
     account_created = False
+    solved_captcha = False
+    login = str()
+    password = str()
 
     def __init__(self, driver):
         self.webdriver = driver
@@ -55,14 +58,14 @@ class OnetEmailCreator:
         validated = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div.checkedFullEmail")))
 
         for text_field in self.inputs:
-            print(text_field + ': ' + self.inputs[text_field] + " value: " + info.getElementsByTagName(text_field)[0].firstChild.data)
+            print(text_field + ': ' + self.inputs[text_field])
             try:
                 value = info.getElementsByTagName(text_field)[0].firstChild.data
                 node = self.webdriver.find_element_by_id(self.inputs[text_field])
                 node.send_keys(value)
             except NoSuchElementException:
                 print("error: {0}".format(NoSuchElementException))
-                return False
+                self.account_created = False
 
         for dropdown in self.dropdowns_selectors:
             print(dropdown + ': ' + self.dropdowns_selectors[dropdown])
@@ -75,7 +78,7 @@ class OnetEmailCreator:
                         break
             except NoSuchElementException:
                 print("error: {0}".format(NoSuchElementException))
-                return False
+                self.account_created = False
 
         for chkbx in self.checkboxes_selectors:
             print(chkbx + ': ' + self.checkboxes_selectors[chkbx])
@@ -84,9 +87,20 @@ class OnetEmailCreator:
                 node.click()
             except NoSuchElementException:
                 print("error: {0}".format(NoSuchElementException))
-                return False
+                self.account_created = False
 
+        self.wait_for_captcha()
+
+
+        self.account_created = True
+        self.login = login
+        self.password = info.getElementsByTagName('password')[0].firstChild.data
+
+    def wait_for_captcha(self):
         return True
+        for i in range(0, 14):
+            time.sleep(2)
+            if self.solved_captcha:
+                return True
 
-    def solve_captcha(self):
-        print("solved")
+        return False
